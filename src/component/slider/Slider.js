@@ -43,15 +43,9 @@ export default class Slider extends React.Component {
        
 
    
-    return (
-                <View style={{borderWidth:1,borderColor:'#000000',flex:1}}>
-                    <ImageBackground
-                        style={{width: '100%', height: '100%',}}
-                        source={{uri: this.state.currentImg}}
-                        >
+    return(
+            <View> </View>
                         
-                    </ImageBackground>
-                </View>
     );
   }
 }
