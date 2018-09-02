@@ -1,6 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View,ScrollView,TouchableOpacity } from 'react-native';
 import {createDrawerNavigator} from 'react-navigation';
+import ItemList from '../Item/ItemList'
 
 import Slider from '../slider/Slider'
 
@@ -14,7 +15,7 @@ export default class Home extends React.Component {
   render() {
     return (
 
-        <ScrollView contentContainerStyle={stylesHome.contentContainer}>
+        <View style={stylesHome.contentContainer}>
             <View style={stylesHome.container}>
                 <View style={stylesHome.nav}>
                    <View style={stylesHome.navbar}>
@@ -29,14 +30,24 @@ export default class Home extends React.Component {
                       </View>
                    </View> 
                 </View>
-
-                <Slider/>
+                <ScrollView>
+                <View style={{borderWidth:2,backgroundColor:'#49bc3a',flex:1,height:150,padding:5}}>
+                    <Slider/>
+                </View>
                 
-                <Text>Open up App.js to start working on your app!</Text>
-                <Text>Changes you make will automatically reload.</Text>
-                <Text>Shake your phone to open the developer menu.</Text>
+
+                <View style={{borderWidth:2,borderColor:'red',flex:1}}>
+                    <View style={{backgroundColor:'#d9e1e2',flex:1}}>
+                     
+                        <ItemList/>                        
+                         
+                    </View>                
+                </View>
+                </ScrollView> 
+                
+                
             </View>
-        </ScrollView>
+        </View>
     );
   }
 }
