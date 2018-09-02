@@ -1,0 +1,13 @@
+ <View style={stylesHome.nav}>
+                   <View style={stylesHome.navbar}>
+                     <View style={stylesHome.togalButton}>
+                         <TouchableOpacity onPress={this._onPressButton} style={stylesHome.button}>
+                          <Text style={{color:'rgb(225,225,225)'}}>Menu</Text>
+    </TouchableOpacity>
+                      </View>
+
+                      <View>
+                        <Text style={{color:'rgb(225,225,225)'}}>Hello                              </Text><Text style={{color:'rgb(225,225,225)'}}>Hello </Text>
+                      </View>
+                   </View> 
+                </View>

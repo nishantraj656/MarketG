@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet,SectionList, Text, View,Button,TouchableOpacity, ImageBackground,FlatList,ActivityIndicator,Image } from 'react-native';
+import {createDrawerNavigator,createStackNavigator} from 'react-navigation';
 
 
 //css flatlist
@@ -52,7 +53,7 @@ export default class ItemList extends React.Component{
                         <Image style={{width: '100%', height: 150,borderRadius:5,flex:1}} source={{uri:item.img}}/>
                     </View> 
                     <View style={{alignItems:'center',justifyContent:'center',padding:3,margin:5,flexDirection:'row'}}>
-                        <Text style={{fontSize:20,fontWeight:'900',fontFamily:'Chicago'}}>Name</Text>
+                        <Text style={{fontSize:20,fontWeight:'900'}}>Name</Text>
                     </View>
                    
                     <View style={{justifyContent:'space-around',flexDirection:'row'}}>
@@ -103,7 +104,7 @@ export default class ItemList extends React.Component{
           renderSectionHeader={({section: {title}}) => (
               <View style={{flex:1,backgroundColor:'#edd363',justifyContent:'space-around',flexDirection:'row',padding:10}}>
                     <Text style={{fontWeight: 'bold',fontSize:20,color:'#000a1c'}}>{title}</Text>
-                    <Button title="View All"/>
+                    <Button title="View All" onPress={()=>{}}/>
             </View>
           )}
           keyExtractor={(item, index) => index}

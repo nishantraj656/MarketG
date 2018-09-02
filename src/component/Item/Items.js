@@ -2,8 +2,56 @@ import React from 'react';
 import { StyleSheet, Text, View,TextInput,Button,TouchableOpacity,Picker,ImageBackground,FlatList,ActivityIndicator,Image } from 'react-native';
 import Slider from '../slider/Slider'
 import { ScrollView } from 'react-native-gesture-handler';
+import {createDrawerNavigator,createStackNavigator,navigationOptions} from 'react-navigation';
+import ItemDetails from './ItemDetails';
 
 const srvItems=[];
+
+class LogoTitle extends React.Component {
+    render() {
+
+        
+       
+      return (
+        <View style={styles.contener}>
+            
+                <Image
+                    source={require('../../pic/logo.png')}
+                    style={{ width: 100, height:100, paddingLeft:20}}
+                />
+                
+           
+           
+                 <Text style={styles.titleName}>Welcome To MarketG</Text>
+            
+         </View>
+      );
+    }
+  }
+
+  const styles=StyleSheet.create({
+      contener:{
+          flexDirection: 'row',
+                flex:1,
+                height:150,
+                backgroundColor:'#003f17',
+                justifyContent: 'space-around',        
+        },
+     logoTitle:{
+            color:'#fcfffd'
+     },
+     Title:{
+         flex:1,
+         alignItems:'center'
+    },
+    titleName:{
+        color:'#fcfffd',
+        fontWeight:'800',
+        fontSize:20,
+        justifyContent:'center'
+    }
+     
+  })
 
 //css flatlist
 const styles1=StyleSheet.create({
@@ -35,7 +83,15 @@ const styles1=StyleSheet.create({
    
 }) 
 
-export default class Item extends React.Component{
+class DetailsScreen extends React.Component{
+    render(){
+        return(<ItemDetails/>)
+    }
+}
+
+ class ItemsScreen extends React.Component{
+
+
 
     constructor(props){
         super(props)
@@ -47,6 +103,12 @@ export default class Item extends React.Component{
 
         }
     }
+
+    static navigationOptions = {
+        // headerTitle instead of title
+       title:"Shoping",
+       header:null,
+        };
 
     _renderIteam=({item})=>{
                 
@@ -110,9 +172,10 @@ export default class Item extends React.Component{
 
 
         
-        return(<View style={{flex:1,width:'100%'}}>
+        return(<ScrollView>
+        <View style={{flex:1,width:'100%'}}>
                 
-                <ScrollView>
+                
                          
                         <View style={{flex:0.5,}}>
                         <Slider/>
@@ -129,7 +192,7 @@ export default class Item extends React.Component{
                             <Picker
 
                             selectedValue={this.state.language}
-                            style={{paddingLeft:10, height: 50, width: 150,fontSize:20 }}
+                            style={{paddingLeft:10, height: 50, width: 150, }}
                             onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
                             {srvItems}                        
                             </Picker>
@@ -140,7 +203,7 @@ export default class Item extends React.Component{
                             <Picker
 
                             selectedValue={this.state.language}
-                            style={{paddingLeft:10, height: 50, width: 150,fontSize:20 }}
+                            style={{paddingLeft:10, height: 50, width: 150 }}
                             onValueChange={(itemValue, itemIndex) => this.setState({language: itemValue})}>
                             <Picker.Item label="Rs/Kg" value='Kg' />                        
                             </Picker>
@@ -157,7 +220,39 @@ export default class Item extends React.Component{
                                 
                                 ListFooterComponent={this._renderFoot}
                             />   
-                </ScrollView>
-        </View>)
+                
+        </View>
+        </ScrollView>)
     }
 } 
+
+
+
+const RootStack = createStackNavigator(
+    {
+        Items: ItemsScreen,
+      Details: DetailsScreen,
+    },
+    {
+      initialRouteName: 'Items',
+      /* The header config from HomeScreen is now here */
+      navigationOptions: {
+        headerStyle: {
+          backgroundColor: '#003f17',
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      },
+    }
+  );
+
+ 
+export default class Item extends React.Component{
+    render(){
+        return(
+                <RootStack/>
+        );
+    }
+}
