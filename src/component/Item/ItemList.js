@@ -8,11 +8,10 @@ const styles1=StyleSheet.create({
     contener:{
            
               flex:1,
-              backgroundColor:'#fceff8', 
+             // backgroundColor:'#fceff8', 
               padding:5,
               width:"100%",  
               borderRadius:1,
-              borderColor: '#f4f4f4',
               borderWidth:1,
                       
       },
@@ -26,7 +25,7 @@ const styles1=StyleSheet.create({
   },
   titleName:{
       color:'#000000',
-      fontWeight:'800',
+      //fontWeight:'800',
       fontSize:20,
       justifyContent:'center'
   }
@@ -47,7 +46,7 @@ export default class ItemList extends React.Component{
         console.log('Section list ',);
 
         return(
-            <TouchableOpacity onPress={()=>{alert("Button press")}}>
+            <TouchableOpacity onPress={()=>{alert("Button press");}} key={item.key} >
                 <View style={styles1.contener}>
                     <View style={{borderWidth:1,flex:1,borderRadius:5}}>
                         <Image style={{width: '100%', height: 150,borderRadius:5,flex:1}} source={{uri:item.img}}/>
@@ -95,16 +94,14 @@ export default class ItemList extends React.Component{
         return(<View style={{flex:1,width:'100%'}}>
             
              <SectionList
-          sections={[
-            {title: 'Rice', data: [{img:'https://agriculturewire.com/wp-content/uploads/2015/07/rice-1024x768.jpg'},{img:'Rice'},{img:'Rice'}]},
-            {title: 'Oil', data: [{img:'https://www.rd.com/wp-content/uploads/2017/11/01_Constipation_Reasons-to-Buy-a-Bottle-of-Castor-Oil-Today_209913937_MaraZe-1200x1200.jpg'}]},
-            {title:'Sugar',data:[{img:'http://www.hindmadetree.com/wp-content/uploads/2017/05/sugar-hindmadetree.jpg'}]},
-          ]}
+          sections={[ ]}
           renderItem={this._renderIteam}
           renderSectionHeader={({section: {title}}) => (
-              <View style={{flex:1,backgroundColor:'#edd363',justifyContent:'space-around',flexDirection:'row',padding:10}}>
+              <View style={{flex:1,backgroundColor:'#edd363',justifyContent:'space-around',flexDirection:'row',padding:5}}>
                     <Text style={{fontWeight: 'bold',fontSize:20,color:'#000a1c'}}>{title}</Text>
-                    <Button title="View All" onPress={()=>{}}/>
+                    <TouchableOpacity>
+                        <Text style={{color:"#49b4e5",fontSize:20}}>View All</Text>
+                    </TouchableOpacity>
             </View>
           )}
           keyExtractor={(item, index) => index}

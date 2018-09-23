@@ -1,8 +1,8 @@
 import React from 'react';
-import { StyleSheet, Text, View,TextInput,Button,TouchableOpacity,Picker,AsyncStorage,ImageBackground,FlatList,ActivityIndicator,Image } from 'react-native';
+import { StyleSheet, Text, View,TextInput,AsyncStorage, Button,TouchableOpacity,Picker,ImageBackground,FlatList,ActivityIndicator,Image } from 'react-native';
 import Slider from '../slider/Slider'
 import { ScrollView } from 'react-native-gesture-handler';
-import {createDrawerNavigator,createStackNavigator,navigationOptions,createMaterialTopTabNavigator} from 'react-navigation';
+import {createDrawerNavigator,createStackNavigator,navigationOptions,createSwitchNavigator} from 'react-navigation';
 import ItemDetails from './ItemDetails';
 
 const srvItems=[];
@@ -29,7 +29,7 @@ class LogoTitle extends React.Component {
     }
   }
 
-const styles=StyleSheet.create({
+  const styles=StyleSheet.create({
       contener:{
           flexDirection: 'row',
                 flex:1,
@@ -83,100 +83,37 @@ const styles1=StyleSheet.create({
    
 }) 
 
-class DetailsScreen extends React.Component{
+class ProductDetails extends React.Component{
     render(){
         return(<ItemDetails/>)
     }
 }
 
-class ItemsScreen extends React.Component{
+ class ListFlats extends React.Component{
 
 
 
     constructor(props){
         super(props)
         this.state={
-            data:[],
+            data:[{Key:'a'},{Key:'b'},{Key:'c'}],
             avilableItem:['rice','oil','sugar'],
             language:'',
-            id:0,
+            query:this.props.query,
+
         }
-        this._retrieveData();
+
+        this.fire(2);
     }
 
-    static navigationOptions = {
-        // headerTitle instead of title
-       title:"Shoping",
-       header:null,
-
-        };
-
-
-    _retrieveData = async () => {
-            try {
-              const value = await AsyncStorage.getItem('subcategory');
-              if (value !== null) {
-                // We have data!!
-                console.log("In value return  data "+value);
-                this.setState({id:value})
-                this.fire(this.state.id);
-              }
-              else{
-                  console.log("Else wale ho beta ");
-              }
-             } catch (error) {
-               // Error retrieving data
-               console.log("Error he re baba  ",error);
-             }
-          }
-
-    _renderIteam=({item})=>{
-                
-        var yourBase64Icon = 'data:image/png;base64,';
-
-        return(
-            <View style={{padding:5,shadowOpacity:5,shadowColor:"#050505",flex:1}}>
-            <TouchableOpacity onPress={()=>{alert("Button press")}}>
-                <View style={styles1.contener}>
-                    <View style={{justifyContent:'center',alignItems:'center',flex:1,borderRadius:5}}>
-                        <Image style={{width: 100, height: 100,borderRadius:5,flex:1}} source={{uri:'https://agriculturewire.com/wp-content/uploads/2015/07/rice-1024x768.jpg'}}/>
-                    </View> 
-                    <View style={{alignItems:'center',justifyContent:'center',padding:3,margin:5,flexDirection:'row'}}>
-                        <Text style={{fontSize:20,fontWeight:'900'}}>{item.p_name}</Text>
-                    </View>
-
-                    <View style={{justifyContent:'space-around',flexDirection:'row'}}>
-                    <Text style={{fontSize:15,fontWeight:'900'}}>Price:{item.price} Rs/{item.unit}</Text>
-                    </View>
-                    
-                   
-
-                    <View>
-                    <Text style={{fontSize:15,fontWeight:'500',color:"#720664"}}>{item.name}</Text>
-                    </View>
-                    <View style={{justifyContent:'space-around',flexDirection:'row'}}>
-                    <Text style={{fontSize:15,fontWeight:'900',paddingHorizontal:7,color:'#fcfcfc',backgroundColor:'#02490b'}}>*3.5</Text>
-                    <Text style={{fontSize:15,fontWeight:'400',paddingHorizontal:7,color:'#878787',}}>Rating 1,657</Text>
-                    </View>
-                </View>
-            </TouchableOpacity>
-            <Button title="More Details" onPress={()=>{alert("Press on details "+item.p_list_id);}}/>
-            </View>
-                   
-                        
-        );
-        
-    }  
-
-
+   
              //fire command for query in database
              fire = (id) =>{
         
                 console.log("Id Return "+id);
-               let sql = "select product_table.*,product_list_table.*,shop_info_table.* from product_list_table INNER JOIN product_table ON product_table.p_list_id = product_list_table.p_list_id INNER JOIN shop_info_table ON product_table.shop_id = shop_info_table.shop_info_id where sub_category_id="+id;
-               // let sql = "SELECT `subcategory_id`, `category_id`, `subcategory_name` FROM `sub_category_table` where category_id="+id;
-            
-                console.log(sql);
+                //let sql = "SELECT * FROM `sub_category_table` where category_id="+id;
+                let sql = this.state.query;
+                console.log("FlatList : ",sql);
 
                 fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                 method: 'POST',
@@ -189,9 +126,10 @@ class ItemsScreen extends React.Component{
                 }) 
                 }).then((response) => response.json())
                     .then((responseJson) => {
-                     console.log("On items ",responseJson);
-                   
-                     this.setState({data:responseJson});
+                       console.log("FlatList Value",responseJson);
+                       console.log('Home update');
+                  //  alert("data update");
+                     this.setState({"data":responseJson});
         
                     }).catch((error) => {
                         alert("updated slow network");
@@ -201,6 +139,55 @@ class ItemsScreen extends React.Component{
                     });           
              }
     
+_storeDataForProduct = async (select) => {
+                try {
+                  await AsyncStorage.setItem('chooseItem', select);
+                  console.log("in storage data ",select);
+                  this.props.navigation.navigate('Details')
+                } catch (error) {
+                  // Error saving data
+                  console.log("Error in store data beta ",error);
+                }
+              }
+
+    _renderIteam=({item})=>{
+                
+        var yourBase64Icon = 'data:image/png;base64,';
+
+        return(
+            <View style={{padding:5,shadowOpacity:5,shadowColor:"#050505"}}>
+            <TouchableOpacity onPress={()=>{alert("Button press"); this._storeDataForProduct("1")}}>
+                <View style={styles1.contener}>
+                    <View style={{borderWidth:1,flex:1,borderRadius:5}}>
+                        <Image style={{width: '100%', height: 150,borderRadius:5,flex:1}} source={{uri:'https://agriculturewire.com/wp-content/uploads/2015/07/rice-1024x768.jpg'}}/>
+                    </View> 
+                    <View style={{alignItems:'center',justifyContent:'center',padding:3,margin:5,flexDirection:'row'}}>
+                        <Text style={{fontSize:20,fontWeight:'900'}}>Name</Text>
+                    </View>
+
+                    <View style={{justifyContent:'space-around',flexDirection:'row'}}>
+                    <Text style={{fontSize:15,fontWeight:'900'}}>Price:50 Rs/Kg</Text>
+                    <Text style={{textDecorationLine:"line-through",color:'red'}}>80 Rs/Kg</Text>
+                    </View>
+                    
+                   
+
+                    <View>
+                    <Text style={{fontSize:15,fontWeight:'500',color:"#720664"}}>Shop Name</Text>
+                    </View>
+                    <View style={{justifyContent:'space-around',flexDirection:'row'}}>
+                    <Text style={{fontSize:15,fontWeight:'900',paddingHorizontal:7,color:'#fcfcfc',backgroundColor:'#02490b'}}>*3.5</Text>
+                    <Text style={{fontSize:15,fontWeight:'400',paddingHorizontal:7,color:'#878787',}}>Rating 1,657</Text>
+                    </View>
+                </View>
+            </TouchableOpacity>
+            <Button title="More Details" onPress={()=>{alert("Press on details");this._storeDataForProduct("1");}}/>
+            </View>
+                   
+                        
+        );
+        
+    }  
     
     
 
@@ -227,7 +214,11 @@ class ItemsScreen extends React.Component{
         
         return(
         <View style={{flex:1,width:'100%'}}>
-              <ScrollView>  
+                <ScrollView>
+                
+                         
+                      
+
                         <FlatList
                                 data={this.state.data}
                                 renderItem={this._renderIteam}
@@ -236,39 +227,19 @@ class ItemsScreen extends React.Component{
                                 
                                 ListFooterComponent={this._renderFoot}
                             />   
-          </ScrollView>      
-        </View>
-        )
+           </ScrollView>     
+        </View>);
     }
 } 
 
+const Rocket =createSwitchNavigator({
+    Home:ListFlats,
+    
+    Details:ProductDetails
+})
 
-
-const RootStack = createStackNavigator(
-    {
-        Items: ItemsScreen,
-      Details: DetailsScreen,
-    },
-    {
-      initialRouteName: 'Items',
-      /* The header config from HomeScreen is now here */
-      navigationOptions: {
-        headerStyle: {
-          backgroundColor: '#003f17',
-        },
-        headerTintColor: '#fff', 
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
-      },
-    }
-  );
-
- 
-export default class Item extends React.Component{
-    render(){
-        return(
-                <RootStack/>
-        );
-    }
+export default class ListFlat extends React.Component{
+render(){
+    return <Rocket/>
+}
 }

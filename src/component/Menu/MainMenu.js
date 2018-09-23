@@ -10,22 +10,26 @@ import CartDetails from '../cart/cartDetails';
 import ItemList from '../Item/ItemList';
 import Item from '../Item/Items';
 import BillList from '../Bill/BillList';
+import MyProfile from '../CommanComp/MyProfile';
+import Shops from '../Shop/ShopsList';
+import Order from '../Bill/OrderList';
 
  
- 
+  
  
 
   class ShoppingScreen extends React.Component{
     render(){
         console.log("Ask click")
-        return(<Item/>)
+        return(<Shops/>)
     }
                                         }
-
+    
+    // It will show the cart history and track order
  class CartScreen extends React.Component{
    
     render(){
-        console.log("Test click")
+        console.log("Test Cart")
         return(<CartDetails/>)
     }
                                             } 
@@ -35,7 +39,7 @@ import BillList from '../Bill/BillList';
 
      render(){
         console.log("Notice click")
-         return(<View><Text>Notice</Text></View>)
+        return(<MyProfile/>)
      }
  }
 
@@ -44,18 +48,11 @@ import BillList from '../Bill/BillList';
    
       render(){
         console.log("Contact click")
-        return(<BillList/>)
+        return(<Order/>)
     }
  }
 
  class HomeScreen extends React.Component{
-    static navigationOptions = {
-        // headerTitle instead of title
-        title:'GK',
-       // headerTitle: <LogoTitle />,
-    
-      };
-
     
 
       render(){

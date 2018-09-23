@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View ,AsyncStorage} from 'react-native';
 
 import Home from './src/component/Home/Home'
 import Slider from './src/component/slider/Slider'
@@ -10,21 +10,46 @@ import BillList from './src/component/Bill/BillList';
 import ItemList from './src/component/Item/ItemList';
 import MainMenu from './src/component/Menu/MainMenu';
 import Login from './src/component/CommanComp/Login';
-
-
+import Memory from './src/component/Storage/Memory';
+import Connection from './src/global/Connection';
 
 
 export default class App extends React.Component {
-  async componentWillMount() {
-    await Expo.Font.loadAsync({
-      'Chicago': require('./assets/fonts/Chicago.ttf'),
-    });
+
+  constructor(){
+    super();
+    this.conn = new Connection();
+  this._storeData();
+  }
+ 
+
+//
+
+  _storeData = async () => {
+    try {
+  
+    // let v1 = await AsyncStorage.getItem('1');
+     let v2 =  await AsyncStorage.getItem('ItemInCart');
+    // let v3 =  await AsyncStorage.getItem('0');
+      if (v2 == null ) {
+        // We have data!!
+        await AsyncStorage.setItem('ItemInCart', '0');
+       
+      }   
+
+    } catch (error) {
+      // Error saving data
+      console.log("Error in app,js store ",error);
+    }
   }
 
-  render() {
+
+ render() {
+    
+    
     return (
-      <Login/>
-    );
+     <Login/>
+     );
   }
 }
 

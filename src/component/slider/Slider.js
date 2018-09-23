@@ -27,7 +27,7 @@ export default class Slider extends React.Component {
     setInterval(() => {
         if(i>this.state.img.length-1)
             i=0;
-        console.log(this.state.img[i]);
+       // console.log(this.state.img[i]);
 
         this.setState({currentImg:this.state.img[i]})
         i++;
@@ -44,9 +44,9 @@ export default class Slider extends React.Component {
 
    
     return (
-                <View style={{borderWidth:1,borderColor:'#000000',flex:1}}>
+                <View style={{borderWidth:1,borderColor:'#000000',flex:1,borderRadius:10}}>
                     <ImageBackground
-                        style={{width: '100%', height: '100%',}}
+                        style={{width: '100%', height: '100%',borderRadius:10}}
                         source={{uri: this.state.currentImg}}
                         >
                         

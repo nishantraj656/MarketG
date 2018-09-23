@@ -1,12 +1,15 @@
 import React from 'react';
 import { StyleSheet, Text, View ,ScrollView,Button,Image,TextInput,KeyboardAvoidingView,ActivityIndicator,AsyncStorage} from 'react-native';
+import Login from '../Login';
 
-export default class MyProfile extends React.Component {
+import {createDrawerNavigator,createSwitchNavigator} from 'react-navigation';
+
+class MyProfileRegisterScreen extends React.Component {
     constructor(props){
         super(props);
         this.state = {
            submitButtonDisable:false,
-           email:"aarav@gmail.com",
+           email:"@gmail.com",
            phone:"9102163686",
            name:"",
            address:"",
@@ -22,42 +25,20 @@ export default class MyProfile extends React.Component {
         this._retrieveData();
     }
     _retrieveData = async () => {
+        console.log("Retruive data");
         try {
-          let email = await AsyncStorage.getItem('user_email');
-          let phone = await AsyncStorage.getItem('user_phone');
-          let name = await AsyncStorage.getItem('user_name');
-          let state = await AsyncStorage.getItem('user_state');
-          let city = await AsyncStorage.getItem('user_city');
-          let landmark = await AsyncStorage.getItem('user_landmark');
-          console.log("inprofile",email,phone,name,state,city,landmark);
-          this.setState({
-              email:email,
-              phone:phone,
-              name:name,
-              state:state,
-              city:city,
-              address:landmark,
-          });
-         } catch (error) {
-            alert("Something not working..",error);
-            console.log("Something not working..",error);
+
+            const register_email = await AsyncStorage.getItem('register_email');
+            const register_phone_no = await AsyncStorage .getItem('register_phone_no');
+            console.log("regi:"+register_email+" regste phone no :"+register_phone_no);
+            this.setState({
+                email:register_email,
+                phone:register_phone_no,
+            });
+        } catch (error) {
+            console.log("Data not retriving....",error);
         }
       }
-      _storeData = async (user_email,user_phone,user_name,user_state,user_city,user_landmark) => {
-        try {
-          await AsyncStorage.setItem('key_login_status', 'true');
-          await AsyncStorage.setItem('user_email',user_email );
-          await AsyncStorage.setItem('user_phone',user_phone );
-          await AsyncStorage.setItem('user_name',user_name );
-          await AsyncStorage.setItem('user_state',user_state);
-          await AsyncStorage.setItem('user_city',user_city );
-          await AsyncStorage.setItem('user_landmark',user_landmark );
-
-            console.log("saved");
-        }catch (error) {
-            console.log("Eroor in saving");
-        }
-    }
     submitProfile = () =>{
         if(this.state.name.trim().length == 0 ||
                 this.state.address.trim().length == 0 ||
@@ -74,7 +55,8 @@ export default class MyProfile extends React.Component {
         this.setState({
             submitButtonDisable:true
         });
-        let sql = "UPDATE `shop_info_table` SET`name`='"+this.state.name+"',`state`='"+this.state.state+"' ,`city`='"+this.state.city+"',`landmark`='"+this.state.address+"' WHERE user_id = (SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"') ";
+
+        let sql = "INSERT INTO `shop_info_table`(`user_id`, `name`, `state`, `city`, `landmark`) VALUES ((SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"'),'"+this.state.name+"','"+this.state.state+"','"+this.state.city+"','"+this.state.address+"')";
         //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
         console.log(sql);
         fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
@@ -90,8 +72,8 @@ export default class MyProfile extends React.Component {
                 .then((responseJson) => {
                     console.log(responseJson);
                     if(responseJson.length == 0){
-                        
-                        alert("Delivery Address updated");
+                        this.props.navigation.navigate('MyProfileClass')
+                        alert("Delivery Address Added");
                         
                     }
                     else {
@@ -126,12 +108,9 @@ export default class MyProfile extends React.Component {
                         .then((responseJson) => {
                             console.log(responseJson);
                             if(responseJson == "YES"){
-                                
+                                this.props.navigation.navigate('LoginClass')
                                 alert("password Updated");
-                                this.setState({
-                                    submitButtonDisable:false
-                                });   
-                                this._storeData(this.state.email,this.state.phone,this.state.name,this.state.state,this.state.city,this.state.address);
+                                
                             }
                             else {
                                 alert("Opps!! Something looks wrong.Please Report to developer.")
@@ -157,9 +136,9 @@ export default class MyProfile extends React.Component {
         <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100} enabled>
                 <View style={styles.parentContainer}>
                     <View style={styles.container}>
-                        <Image style={styles.image} source={require('../Image/logo.png')} />
+                        <Image style={styles.image} source={require('../../Image/logo.png')} />
                         <Text style={styles.H4}>Edit your profile!</Text>
-                        <Text>Email:</Text>
+                        
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -167,7 +146,6 @@ export default class MyProfile extends React.Component {
                             editable = {false}
                             value = {this.state.email}
                         />
-                        <Text>Phone NO:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -175,7 +153,6 @@ export default class MyProfile extends React.Component {
                             editable = {false}
                             value = {this.state.phone}
                         />
-                        <Text>Your Name:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -183,7 +160,6 @@ export default class MyProfile extends React.Component {
                             onChangeText = {(text) => { this.setState({name:text});}}
                             value = {this.state.name}
                         />
-                        <Text>State:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -192,7 +168,6 @@ export default class MyProfile extends React.Component {
                             editable= {false}
                             value = "Bihar"
                         />
-                        <Text>City:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -201,16 +176,13 @@ export default class MyProfile extends React.Component {
                             editable = {false}
                             value = "Bhagalpur"
                         />
-                        <Text>Delivery Address:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
                             placeholder="Delivery Address"
                             onChangeText = {(text) => { this.setState({address:text});}}
-                            value = {this.state.address}
 
                         />
-                        <Text>New password:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -219,7 +191,6 @@ export default class MyProfile extends React.Component {
                             onChangeText = {(text) => { this.setState({password1:text});}}
 
                         />
-                        <Text>Confirm password:</Text>
                         <TextInput 
                             underlineColorAndroid='#b3b3b3' 
                             style={styles.textInput} 
@@ -231,7 +202,7 @@ export default class MyProfile extends React.Component {
                         />
                         <Button 
                             style = {styles.button} 
-                            title="Update" 
+                            title="CONTINUe" 
                             onPress={()=>{ this.submitProfile()}}
                             disabled = {this.state.submitButtonDisable}
                         ></Button>
@@ -246,6 +217,36 @@ export default class MyProfile extends React.Component {
     );
   }
 }
+
+
+class LoginClass extends React.Component{
+    render(){
+        return(<Login/>)
+    }
+}
+
+const RootStack = createSwitchNavigator(
+    {
+        LoginClass:LoginClass,
+        MyProfileRegisterScreen:MyProfileRegisterScreen
+    },
+    {
+        initialRouteName: 'MyProfileRegisterScreen',
+        backBehavior:'initialRoute',
+       
+      }
+    
+);
+
+export default class MyProfileRegister extends React.Component{
+    render(){
+        return(
+                <RootStack/>
+        );
+    }
+}
+
+
 
 
 const styles = StyleSheet.create({
@@ -276,7 +277,6 @@ const styles = StyleSheet.create({
         paddingLeft: 3,
         // Set border Radius.
         //borderRadius: 10 ,
-        backgroundColor:'#eaf1f4',
     },
     H1:{
         fontSize: 28,
