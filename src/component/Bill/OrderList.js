@@ -48,7 +48,9 @@ class CartList extends React.Component{
         this.state={
             data:[],
             id:this.props.id,
-            datap:[]
+            datap:[],
+            userID:0,
+            process:false,
         }  
         cl=this;  
     }
@@ -61,10 +63,11 @@ class CartList extends React.Component{
     _retrieveData = async () => {
         try {
           const value = await AsyncStorage.getItem('category');
-          if (value !== null) {
+          const userID = await AsyncStorage.getItem('costID');
+          if (value !== null && userID !== null) {
             // We have data!!
             console.log("In value return  data "+value);
-           
+           this.setState({userID:userID});
             this.fire();
            
           }
@@ -117,8 +120,8 @@ class CartList extends React.Component{
             //fire command for query in database
     fire = () =>{
         
-                    
-                    let sql = "SELECT cart_lot_table.*,shop_info_table.name from cart_lot_table INNER join shop_info_table ON cart_lot_table.shop_info_id = shop_info_table.shop_info_id where customer_info_id = 1";
+                    this.setState({ process:true})
+                    let sql = "SELECT cart_lot_table.*,shop_info_table.name from cart_lot_table INNER join shop_info_table ON cart_lot_table.shop_info_id = shop_info_table.shop_info_id where customer_info_id ="+this.state.userID;
                    // let sql = "SELECT `subcategory_id`, `category_id`, `subcategory_name` FROM `sub_category_table` where category_id="+id;
                 
                     console.log(sql);
@@ -138,11 +141,12 @@ class CartList extends React.Component{
                           // console.log('Home update');
                        alert("data update");
                          this.setState({data:responseJson});
-            
+                         this.setState({ process:false})
                         }).catch((error) => {
                             alert("updated slow network");
                             console.log(error);
-                            
+                            this.setState({ process:false})
+                  
             
                         });           
                  }
@@ -201,7 +205,7 @@ _renderIteamList=({item})=>{
                                 data={this.state.data} 
                                 renderItem={this._renderIteamList}
                                 numColumns={1} 
-                                ListFooterComponent={this._renderFoot}
+                               
                                 ListEmptyComponent={()=>{return(<View style={{justifyContent:'center'}}>
                                 <ActivityIndicator size="large" color="#0000ff" />
                                 <Text>Wait List is Loading.....</Text>
@@ -211,6 +215,9 @@ _renderIteamList=({item})=>{
                         
                     </ScrollView>
 
+                    <View style={{flexDirection:'row',justifyContent:'space-around',backgroundColor:'#f7c927'}}>
+                     {!this.state.process ?  <Button title="Re-fresh" color="#f7c927" onPress={()=>{this.fire();}}/> : <ActivityIndicator size="large" color="#0000ff" />}              
+                    </View>
                 </View>);
     }
 } 
@@ -241,11 +248,11 @@ class CartDetails extends React.Component{
 
         console.log("It will calll mount ");
         this._start();
-
+        
     }
 
       //fire command for query in database
-      fire = async() =>{
+    fire = async() =>{
         let id = await AsyncStorage.getItem('CartID');
         //console.log("Id Return "+id);
        let sql = " SELECT DISTINCT order_table.*,product_table.unit,product_table.price,product_list_table.P_name FROM order_table INNER JOIN product_table ON order_table.product_list_id = product_table.product_table_id INNER JOIN product_list_table ON product_list_table.p_list_id = product_table.p_list_id where order_table.cart_lot_no_id ="+id;
@@ -390,6 +397,8 @@ class CartDetails extends React.Component{
 const Rocket =createStackNavigator({
         Home:CartList,
         Details:CartDetails,     
+},{
+    headerMode:'none'
 });
 
 export default class Order extends React.Component{

@@ -92,6 +92,7 @@ class TakePhoneScreen extends React.Component {
                         keyboardType="numeric"
                         onChangeText={(text)=>{this.setState({phoneNo:text})}}  
                         maxLength = {10}  
+                        underlineColorAndroid='#0084ff' 
                     />
                     <Button 
                         style = {styles.button} 
@@ -160,11 +161,12 @@ const styles = StyleSheet.create({
     textInput:{  
         textAlign: 'justify',
         marginBottom: 7,
-        height: 40,
+        height: 45,
         //borderWidth: 1,
         // Set border Hex Color Code Here.
         borderColor: '#2196F3',
-        
+        fontSize:20,
+        fontWeight: '800',
         // Set border Radius.
         borderRadius: 5 ,
         paddingLeft: 3,

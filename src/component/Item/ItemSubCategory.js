@@ -6,6 +6,7 @@ import ListFlat from './FlatListView';
 import { ScrollView } from 'react-native-gesture-handler';
 import ItemDetails from './ItemDetails';
 import LogoTitle from '../../LogoTitle';
+import Connection from '../../global/Connection';
 
 const pls ="";
 const pd ="";
@@ -48,16 +49,42 @@ class SubCategory extends React.Component{
     constructor(props){
         super(props)
         this.state={
-            data:[],
+            data:[], //suCategory data.
             id:this.props.id,
-            datap:[]
+            datap:[],
+            subCategoryMsg:'',
+           
         } 
-        sc=this;   
+        sc=this; 
+        this.conn=null;   
     }
 
     componentWillMount(){
         console.log("It will calll mount ");
-        this._retrieveData();
+      //  this._retrieveData();
+      this.conn=new Connection();
+      this._inslization();
+
+
+     }
+
+      //inslization 
+      _inslization =async()=>{
+      
+        
+       await this._retrieveData();
+       let value =await this.conn.Query("SELECT `subcategory_id`, `category_id`, `subcategory_name` FROM `sub_category_table` where category_id="+this.state.id); // get subcategory list 
+       if(value.flag){
+           this.setState({data:value.data});
+       }else{
+           this.setState({subCategoryMsg:"List is empty...."});
+       }
+       
+      
+     }
+
+     _searchHandle = () =>{
+
      }
 
     _retrieveData = async () => {
@@ -65,10 +92,10 @@ class SubCategory extends React.Component{
           const value = await AsyncStorage.getItem('category');
           if (value !== null) {
             // We have data!!
-            console.log("In value return  data "+value);
-            this.setState({"id":value})
-            this.fire(this.state.id);
-            this.fireP(this.state.id)
+          // console.log("In value return  data "+value);
+            this.setState({id:value})
+          // this.fire(this.state.id);
+           // this.fireP(this.state.id)
           }
           else{
               console.log("Else wale ho beta ");
@@ -141,38 +168,6 @@ class SubCategory extends React.Component{
                             )
                     }
 
-            //fire command for query in database
-    fire = (id) =>{
-        
-                    console.log("Id Return "+id);
-                    //let sql = "SELECT * FROM `sub_category_table` where category_id="+id;
-                    let sql = "SELECT `subcategory_id`, `category_id`, `subcategory_name` FROM `sub_category_table` where category_id="+id;
-                
-                    console.log(sql);
-
-                    fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        query: sql,
-                    }) 
-                    }).then((response) => response.json())
-                        .then((responseJson) => {
-                          // console.log(responseJson);
-                           console.log('Home update');
-                      //  alert("data update");
-                         this.setState({"data":responseJson});
-            
-                        }).catch((error) => {
-                            alert("updated slow network");
-                            console.log(error);
-                            
-            
-                        });           
-                 }
 
                  // fire for product list
                     //fire command for query in database
@@ -309,23 +304,45 @@ class ProductListScreen extends React.Component{
     constructor(props){
         super(props)
         this.state={
-            data:[],
+            data:[], //store product list of sub-category
             avilableItem:[],
             language:'',
-            id:0,
+            id:0,   // product ID
+            subID:0, // retrive sub-category ID
         }
        pls = this;
+       this.conn=null;
     }
 
    refresh =()=>{
         console.log("Refresh call of Productlistscreen");
-        this._retrieveData();
+      //  this._retrieveData();
+      this._inslization();
     }
 
     componentWillMount (){
         console.log("--------------In Item List Screen --------------------------------------------")
-        this._retrieveData();
+       // this._retrieveData();
+       this.conn = new Connection();
+       this._inslization();
     }
+
+    
+      //inslization 
+      _inslization =async()=>{
+      
+        
+        await this._retrieveData();
+        let value =await this.conn.Query("select min(product_table.price) as price ,GROUP_CONCAT(product_table.unit) as unit,product_table.p_list_id,GROUP_CONCAT(product_table.product_table_id) as productID,GROUP_CONCAT(product_table.shop_id) AS ShopID,GROUP_CONCAT(product_list_table.p_name) AS pName,GROUP_CONCAT(shop_info_table.name)  as sName from product_table INNER JOIN product_list_table on product_table.p_list_id = product_list_table.p_list_id INNER JOIN shop_info_table ON shop_info_table.user_id = product_table.shop_id WHERE product_list_table.sub_category_id = "+this.state.subID+" GROUP BY p_list_id"); // get subcategory list 
+        if(value.flag){
+          this.setState({data:value.data});
+        //  console.log(value.data);
+        }else{
+          //  this.setState({subCategoryMsg:"List is empty...."});
+        }
+        
+       
+      }
 
     static navigationOptions = {
         // headerTitle instead of title
@@ -341,8 +358,8 @@ class ProductListScreen extends React.Component{
               if (value !== null) {
                 // We have data!!
                 console.log("In value return  data "+value);
-                
-                this.fire(value);
+                this.setState({subID:value});
+               // this.fire(value);
               }
               else{
                   console.log("Else wale ho beta ");
@@ -397,18 +414,19 @@ class ProductListScreen extends React.Component{
         } 
 
     _renderIteam=({item})=>{
-                
+            
+        console.log('PRoduct list :',typeof item.ShopID);
       
 
         return(
             <View style={{padding:5,shadowOpacity:5,shadowColor:"#050505",flex:1}}>
-            <TouchableOpacity onPress={()=>{this._storeDataForCart(item.p_list_id,item.shop_id,item.unit,item.price)}}>
+            <TouchableOpacity onPress={()=>{this._storeDataForCart(item.p_list_id,item.ShopID.split(',')[0],item.unit.split(',')[0],item.price)}}>
                 <View style={styles1.contener}>
                     <View style={{justifyContent:'center',alignItems:'center',flex:1,borderRadius:5}}>
                         <Image style={{width: 100, height: 100,borderRadius:5,flex:1}} source={{uri:'https://agriculturewire.com/wp-content/uploads/2015/07/rice-1024x768.jpg'}}/>
                     </View> 
                     <View style={{alignItems:'center',justifyContent:'center',padding:3,margin:5,flexDirection:'row'}}>
-                        <Text style={{fontSize:20,fontWeight:'900'}}>{item.p_name}</Text>
+                        <Text style={{fontSize:20,fontWeight:'900'}}>{item.pName.split(',')[0]}</Text>
                     </View>
 
                     <View style={{justifyContent:'space-around',flexDirection:'row'}}>
@@ -418,7 +436,7 @@ class ProductListScreen extends React.Component{
                    
 
                     <View>
-                    <Text style={{fontSize:15,fontWeight:'500',color:"#720664"}}>{item.name}</Text>
+                    <Text style={{fontSize:15,fontWeight:'500',color:"#720664"}}>{item.sName.split(',')[0]}</Text>
                     </View>
                     <View style={{justifyContent:'space-around',flexDirection:'row'}}>
                     <Text style={{fontSize:15,fontWeight:'900',paddingHorizontal:7,color:'#fcfcfc',backgroundColor:'#02490b'}}>*3.5</Text>
@@ -426,48 +444,13 @@ class ProductListScreen extends React.Component{
                     </View>
                 </View>
             </TouchableOpacity>
-            <Button title="More Details" onPress={()=>{ this._storeDataForDetails(item.p_list_id,item.shop_id); }}/>
+            <Button title="More Details" onPress={()=>{ this._storeDataForDetails(item.p_list_id,item.ShopID.split(',')[0]); }}/>
             </View>
                    
                         
         );
         
     }  
-
-             //fire command for query in database
-    fire =async (id) =>{
-        
-                console.log("Id Return "+id);
-               let sql = "select product_table.*,product_list_table.*,shop_info_table.* from product_list_table INNER JOIN product_table ON product_table.p_list_id = product_list_table.p_list_id INNER JOIN shop_info_table ON product_table.shop_id = shop_info_table.shop_info_id where sub_category_id="+id;
-               // let sql = "SELECT `subcategory_id`, `category_id`, `subcategory_name` FROM `sub_category_table` where category_id="+id;
-            
-                console.log(sql);
-
-              await  fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    query: sql,
-                }) 
-                }).then((response) => response.json())
-                    .then((responseJson) => {
-                     console.log("On items ",responseJson);
-                   
-                     this.setState({data:responseJson});
-                     
-                    }).catch((error) => {
-                        alert("updated slow network");
-                        console.log(error);
-                        
-        
-                    });           
-             }
-    
-    
-    
 
     // _renderHeader=() =>{
     //                     return <SearchBar placeholder='Type here.....' lightTheme round/>
@@ -507,52 +490,39 @@ class ProductDetails extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            data:null,
+            data:null, // store 
+            pID:0, //productID
+            sID:0 //ShopID
+
         }
        pd=this;
+       this.conn=null;
     }
 
     refresh =()=>{
-        this._retrieveData();
+        this._inslization();
     }
     componentWillMount (){
         console.log('-----------------In ProductDetails  ------------------');
-        this._retrieveData();
+        this.conn = new Connection();
+        this._inslization();
     }
-      //fire command for query in database
-      fire = (pID,sID) =>{
+
+     //inslization 
+     _inslization =async()=>{
+      
         
-        //console.log("Id Return "+id);
-       let sql = "SELECT product_table.*,shop_info_table.*,product_list_table.* from product_table INNER JOIN shop_info_table on product_table.shop_id = shop_info_table.shop_info_id INNER JOIN product_list_table on product_list_table.p_list_id = product_table.p_list_id WHERE product_table.product_table_id ="+pID+" AND product_table.shop_id ="+sID;
-       // let sql = this.state.query;
-        console.log("FlatList sql : "+sql);
-
-        fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            query: sql, 
-        }) 
-        }).then((response) => response.json())
-            .then((responseJson) => {
-
-               console.log("FlatList Value",responseJson);
-               
-          //  alert("data update");
-          
-             this.setState({data:responseJson[0]});
-
-            }).catch((error) => {
-                alert("updated slow network");
-                console.log(error);
-                
-
-            });           
-         }
-
+        await this._retrieveData();
+        //query for product details
+        let value =await this.conn.Query("SELECT product_table.*,shop_info_table.*,product_list_table.* from product_table INNER JOIN shop_info_table on product_table.shop_id = shop_info_table.shop_info_id INNER JOIN product_list_table on product_list_table.p_list_id = product_table.p_list_id WHERE product_table.product_table_id ="+this.state.pID+" AND product_table.shop_id ="+this.state.sID); // get subcategory list 
+        if(value.flag){
+            this.setState({data:value.data[0]});
+        }else{
+          //  this.setState({subCategoryMsg:"List is empty...."});
+        }
+        
+       
+      }
 
 
     _retrieveData = async () => {
@@ -562,7 +532,8 @@ class ProductDetails extends React.Component{
           if (chooseValue !== null && chooseshopValue !=null) {
             // We have data!!
             console.log("Chosse value data :",chooseValue);
-           this.fire(chooseValue,chooseshopValue);
+          // this.fire(chooseValue,chooseshopValue);
+          this.setState({sID:chooseshopValue,pID:chooseValue});
           }
           else{
               console.log("Note find value ");

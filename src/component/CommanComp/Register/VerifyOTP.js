@@ -92,8 +92,8 @@ class VerifyOTPScreen extends React.Component {
             submitButtonDisable:true,
         });
         if(this.state.sentOTP == this.state.enteredOTP){
-            let sql = "INSERT INTO `security_table`( `email`, `phone_no`,`password`, `user_type`) VALUES ('"+this.state.email+"','"+this.state.phone+"','"+this.state.phone+"','shopkeeper');";
-            //"INSERT INTO `shop_info_table`(`user_id`) VALUES ((SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"'))";
+            let sql = "INSERT INTO `security_table`( `email`, `phone_no`,`password`, `user_type`) VALUES ('"+this.state.email+"','"+this.state.phone+"','"+this.state.phone+"','user');";
+            //"INSERT INTO `customer_info_table`(`user_id`) VALUES ((SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"'))";
             console.log(sql);
             fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                 method: 'POST',
@@ -230,7 +230,8 @@ const styles = StyleSheet.create({
         //borderWidth: 1,
         // Set border Hex Color Code Here.
         borderColor: '#2196F3',
-        
+        fontSize:20,
+        fontWeight: '800',
         // Set border Radius.
         borderRadius: 5 ,
         paddingLeft: 3,

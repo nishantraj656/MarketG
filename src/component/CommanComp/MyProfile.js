@@ -9,6 +9,7 @@ export default class MyProfile extends React.Component {
            email:"aarav@gmail.com",
            phone:"9102163686",
            name:"",
+           landmark:"",
            address:"",
            state:"Bihar",
            city:"Bhagalpur",
@@ -29,6 +30,7 @@ export default class MyProfile extends React.Component {
           let state = await AsyncStorage.getItem('user_state');
           let city = await AsyncStorage.getItem('user_city');
           let landmark = await AsyncStorage.getItem('user_landmark');
+          let address = await AsyncStorage.getItem('user_address');
           console.log("inprofile",email,phone,name,state,city,landmark);
           this.setState({
               email:email,
@@ -36,22 +38,25 @@ export default class MyProfile extends React.Component {
               name:name,
               state:state,
               city:city,
-              address:landmark,
+              landmark,landmark,
+              address:address,
           });
          } catch (error) {
             alert("Something not working..",error);
             console.log("Something not working..",error);
         }
       }
-      _storeData = async (user_email,user_phone,user_name,user_state,user_city,user_landmark) => {
+      _storeData = async (user_email,user_phone,user_name,user_state,user_city,user_landmark,user_address) => {
         try {
-          await AsyncStorage.setItem('key_login_status', 'true');
+          await AsyncStorage.setItem('key_login_status_market_g', 'true');
           await AsyncStorage.setItem('user_email',user_email );
           await AsyncStorage.setItem('user_phone',user_phone );
           await AsyncStorage.setItem('user_name',user_name );
           await AsyncStorage.setItem('user_state',user_state);
           await AsyncStorage.setItem('user_city',user_city );
           await AsyncStorage.setItem('user_landmark',user_landmark );
+          await AsyncStorage.setItem('user_address',user_address );
+
 
             console.log("saved");
         }catch (error) {
@@ -74,8 +79,8 @@ export default class MyProfile extends React.Component {
         this.setState({
             submitButtonDisable:true
         });
-        let sql = "UPDATE `shop_info_table` SET`name`='"+this.state.name+"',`state`='"+this.state.state+"' ,`city`='"+this.state.city+"',`landmark`='"+this.state.address+"' WHERE user_id = (SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"') ";
-        //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
+        let sql = "UPDATE `customer_info_table` SET`cname`='"+this.state.name+"',`state`='"+this.state.state+"' ,`city`='"+this.state.city+"',`address`='"+this.state.address+"',`landmark`='"+this.state.landmark+"' WHERE user_id = (SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"') ";
+        //"INSERT INTO `customer_info_table`(`user_id`) VALUES (())";
         console.log(sql);
         fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
             method: 'POST',
@@ -111,7 +116,7 @@ export default class MyProfile extends React.Component {
                 });
 
                 sql = "UPDATE `security_table` SET `password`='"+this.state.password1+"' WHERE email = '"+this.state.email+"' and phone_no = '"+this.state.phone+"';";
-                //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
+                //"INSERT INTO `customer_info_table`(`user_id`) VALUES (())";
                 console.log(sql);
                 fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                     method: 'POST',
@@ -131,7 +136,7 @@ export default class MyProfile extends React.Component {
                                 this.setState({
                                     submitButtonDisable:false
                                 });   
-                                this._storeData(this.state.email,this.state.phone,this.state.name,this.state.state,this.state.city,this.state.address);
+                                this._storeData(this.state.email,this.state.phone,this.state.name,this.state.state,this.state.city,this.state.landmark,this.state.address);
                             }
                             else {
                                 alert("Opps!! Something looks wrong.Please Report to developer.")
@@ -200,6 +205,15 @@ export default class MyProfile extends React.Component {
                             onChangeText = {(text) => { this.setState({city:text});}}
                             editable = {false}
                             value = "Bhagalpur"
+                        />
+                        <Text>landmark:</Text>
+                        <TextInput 
+                            underlineColorAndroid='#b3b3b3' 
+                            style={styles.textInput} 
+                            placeholder="landmark"
+                            onChangeText = {(text) => { this.setState({landmark:text});}}
+                            value = {this.state.landmark}
+
                         />
                         <Text>Delivery Address:</Text>
                         <TextInput 

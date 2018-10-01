@@ -56,8 +56,8 @@ class MyProfileRegisterScreen extends React.Component {
             submitButtonDisable:true
         });
 
-        let sql = "INSERT INTO `shop_info_table`(`user_id`, `name`, `state`, `city`, `landmark`) VALUES ((SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"'),'"+this.state.name+"','"+this.state.state+"','"+this.state.city+"','"+this.state.address+"')";
-        //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
+        let sql = "INSERT INTO `customer_info_table`(`user_id`, `cname`, `state`, `city`, `landmark`) VALUES ((SELECT user_id FROM security_table WHERE security_table.email = '"+this.state.email+"' and security_table.phone_no = '"+this.state.phone+"'),'"+this.state.name+"','"+this.state.state+"','"+this.state.city+"','"+this.state.address+"');";
+        //"INSERT INTO `customer_info_table`(`user_id`) VALUES (())";
         console.log(sql);
         fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
             method: 'POST',
@@ -72,8 +72,10 @@ class MyProfileRegisterScreen extends React.Component {
                 .then((responseJson) => {
                     console.log(responseJson);
                     if(responseJson.length == 0){
-                        this.props.navigation.navigate('MyProfileClass')
-                        alert("Delivery Address Added");
+                        // this.props.navigation.navigate('MyProfileClass')
+                        // alert("Delivery Address Added");
+                        alert("password Updated");
+                        this.props.navigation.navigate('LoginClass')
                         
                     }
                     else {
@@ -93,7 +95,7 @@ class MyProfileRegisterScreen extends React.Component {
                 });
 
                 sql = "UPDATE `security_table` SET `password`='"+this.state.password1+"' WHERE email = '"+this.state.email+"' and phone_no = '"+this.state.phone+"';";
-                //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
+                //"INSERT INTO `customer_info_table`(`user_id`) VALUES (())";
                 console.log(sql);
                 fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                     method: 'POST',
@@ -127,7 +129,7 @@ class MyProfileRegisterScreen extends React.Component {
                             });         
         
                         });
-        
+                        
 
     }
   render() {

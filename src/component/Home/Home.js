@@ -9,6 +9,7 @@ import { FlatList } from 'react-native-gesture-handler';
 import Item from '../Item/Items';
 import SubCategory from '../Item/ItemSubCategory';
 import SubCategorys from '../Item/ItemSubCategory';
+import Connection from '../../global/Connection';
 
 
 class LogoTitle extends React.Component {
@@ -100,20 +101,37 @@ class Search extends React.Component{
          super(props);
          this.state={
              category:[],
-            }           
+             categoryMsg:'Wait List is Loading.....',
+            } 
+         this.conn=null;         
         
      }
 
      componentWillMount(){
         console.log("It will calll mount ");
-        this.fire();
+        this._inslization();
+      
+     }
+
+     //inslization 
+     _inslization =async()=>{
+      
+        this.conn=new Connection();
+       let value = await this.conn.Query("SELECT category_id,category_name FROM `category_table`"); // get category 
+       if(value.flag){
+           this.setState({category:value.data});
+       }else{
+           this.setState({categoryMsg:"List is empty...."});
+       }
+       
+      
      }
 
      //Store category id 
      _storeData = async (select) => {
         try {
           await AsyncStorage.setItem('category', select);
-          console.log("in storage data ",select);
+         // console.log("in storage data ",select);
           this.props.navigation.navigate('Category',{categoryID:select,})
         } catch (error) {
           // Error saving data
@@ -131,35 +149,7 @@ class Search extends React.Component{
         }
          }
 
-     fire = () =>{
-        
-        
-       // let sql = "SELECT * FROM `category_table`";
-       let sql = "SELECT category_id,category_name FROM `category_table`";
-        console.log(sql);
-        fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                query: sql,
-            }) 
-            }).then((response) => response.json())
-                .then((responseJson) => {
-
-                console.log("---------------###------",responseJson);
-                  this.setState({category:responseJson});
-    
-                }).catch((error) => {
-                    alert("updated slow network");
-                    console.log(error);
-                    
-    
-                });
-    
-        }
+     
 
     _onPressButton = () => {
     alert("Button press");
@@ -209,11 +199,18 @@ class Search extends React.Component{
                     ItemSeparatorComponent={()=>{return(<View style={{borderRadius:5,borderColor:'#012160'}}><Text></Text></View>)}}
                     
                     keyExtractor={items => items.category_id}
-                    ListEmptyComponent={()=>{return(<View style={{justifyContent:'center'}}>
-                    <ActivityIndicator size="large" color="#0000ff" />
-                    <Text>Wait List is Loading.....</Text>
+                    ListEmptyComponent={()=>{
+                        if(this.state.categoryMsg =='Wait List is Loading.....')
+                         return(<View style={{justifyContent:'center'}}>
+                                <ActivityIndicator size="large" color="#0000ff" />
+                                <Text>{this.state.categoryMsg}</Text>
 
-                 </View>);}}
+                            </View>);
+                        else
+                        return(<View style={{justifyContent:'center'}}>
+                                <Text>{this.state.categoryMsg}</Text>
+
+                                </View>)}}
                     horizontal
                     />
                     </View>

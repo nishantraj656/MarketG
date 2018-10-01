@@ -3,6 +3,7 @@ import { StyleSheet,ToastAndroid,AsyncStorage,RefreshControl, Text, View,Button,
 import { ScrollView } from 'react-native-gesture-handler';
 import Slider from '../slider/Slider';
 import LogoTitle from '../../LogoTitle';
+import Connection from '../../global/Connection';
 
 
 //css flatlist
@@ -68,11 +69,9 @@ export default class CartDetails extends React.Component{
             process:false,  
             refreshing:false,
             isEmpty:"Wait List is Loading.....", //message to show while loading 
-            cartItem:0, //No. of item in cart
-          
-            
+            cartItem:0, //No. of item in cart    
         }
-        
+        this.conn =new Connection();
        
     }
 
@@ -279,7 +278,7 @@ export default class CartDetails extends React.Component{
               //fire command for query in database for current selected shop
     fireshop =async (shopID) =>{
                 
-                let query = "SELECT shop_info_table.*,customer_info_table.* FROM `shop_info_table` INNER JOIN customer_info_table ON shop_info_table.user_id = customer_info_table.user_id WHERE shop_info_table.shop_info_id = "+shopID;
+                let query = "SELECT shop_info_table.*,security_table.* FROM `shop_info_table` INNER JOIN security_table ON shop_info_table.user_id = security_table.user_id WHERE shop_info_table.shop_info_id = "+shopID;
                 console.log("Shop Query :",query);
                 await  fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                   method: 'POST',
@@ -292,9 +291,10 @@ export default class CartDetails extends React.Component{
                   }) 
                   }).then((response) => response.json())
                       .then((responseJson) => {
-                       console.log("On shop ",responseJson);
+                       console.log("On shop -------",responseJson);
                      
                        this.setState({datashop:responseJson});
+                    
                       
                            this.setState({isEmpty:"List is empty...."});
                        
@@ -464,7 +464,7 @@ export default class CartDetails extends React.Component{
 
         this.setState({process:true});
     
-    let userID = await AsyncStorage.getItem('userID');
+    let userID = await AsyncStorage.getItem('costID');
     
     let shopID = this.state.selectedShopID;
     let cinsert = "INSERT INTO `cart_lot_table`(customer_info_id,offer_amt,paid_amt,total_price,shop_info_id) VALUES ("+userID+',0,0,'+this.state.sumvalue+','+shopID+');';
@@ -504,6 +504,7 @@ export default class CartDetails extends React.Component{
         this.setState({avilableItem:[]});
         this.refresh();
         this.setState({process:false}); 
+        this.sendNotifactionTome("New Order","New order of total price : "+this.state.sumvalue +" From customer.",this.state.datashop[0].noti_token);
      }
     }
 
@@ -552,8 +553,10 @@ export default class CartDetails extends React.Component{
                      
                     >
                     <View style={{flex:0.5,backgroundColor:"#ffe8a0",marginBottom:5}}>
-                                        <Text style={{fontSize:20,fontWeight:'900',alignSelf:'center',textShadowColor:'#0815cc',color:'#000656'}} >{this.state.datashop !=null? this.state.datashop.name :"There is no data" }</Text>
-                                        <Text style={{fontSize:15,padding:10,fontWeight:'400',alignSelf:'center',textShadowColor:'#0815cc',color:'#560040'}} >At: UrduBzar,PO : Ammapali,Near : KaliMandir, Bhagalpur(Bihar), Pin : 813208</Text>
+                                        <Text style={{fontSize:20,fontWeight:'900',alignSelf:'center',textShadowColor:'#0815cc',color:'#000656'}} >{this.state.datashop !=null? this.state.datashop[0].name:"There is no data" }</Text>
+                                        <Text style={{fontSize:15,padding:10,fontWeight:'400',alignSelf:'center',textShadowColor:'#0815cc',color:'#560040'}} >Address : {this.state.datashop !=null? this.state.datashop[0].address:"There is no data" }</Text>
+                                        <Text style={{fontSize:15,padding:10,fontWeight:'400',alignSelf:'center',textShadowColor:'#0815cc',color:'#560040'}} >Mobile No. :{this.state.datashop !=null? this.state.datashop[0].phone_no:"There is no data" }</Text>
+                                        
                                         <View style={{flexDirection:'row',justifyContent:'space-between',padding:5}}>
                                         <Text style={{fontSize:20,backgroundColor:'#002d11', fontWeight:'900',alignSelf:'flex-end',paddingHorizontal:10,color:'#ffffff'}}>*3.5</Text>
                                     <Text style={{fontSize:15,fontWeight:'400',alignSelf:'center',padding:10,color:'#6d6d6d',}}>Rating : 908,56</Text>
@@ -613,7 +616,7 @@ export default class CartDetails extends React.Component{
 
                                         </View>)}}
                             />   
-            
+             
                
             </ScrollView>
            <View style={{flexDirection:'row',justifyContent:'space-around',backgroundColor:'#f7c927'}}>
@@ -627,4 +630,31 @@ export default class CartDetails extends React.Component{
         </View>
           )
     }
+
+           //database connection 
+  sendNotifactionTome = (title,msg,token) =>{
+   
+    console.log("Tokn :",token);
+   
+    fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+
+          // " accept": "application/json",
+         //  " accept-encoding": "gzip, deflate",
+            "content-type": "application/json",
+        },
+        body:JSON.stringify( {
+            to:token,
+            sound: "default",
+            body: msg,
+            title:title,
+            badge: 1,
+          })
+        })
+        console.log("Notification send");
+       // alert('Notific send');
+}
+
+
 }

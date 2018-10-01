@@ -14,7 +14,7 @@ import Memory from './src/component/Storage/Memory';
 import Connection from './src/global/Connection';
 
 
-export default class App extends React.Component {
+export default class App extends React.Component { 
 
   constructor(){
     super();
@@ -28,9 +28,9 @@ export default class App extends React.Component {
   _storeData = async () => {
     try {
   
-    // let v1 = await AsyncStorage.getItem('1');
+   
      let v2 =  await AsyncStorage.getItem('ItemInCart');
-    // let v3 =  await AsyncStorage.getItem('0');
+  
       if (v2 == null ) {
         // We have data!!
         await AsyncStorage.setItem('ItemInCart', '0');

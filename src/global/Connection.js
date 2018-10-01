@@ -14,13 +14,13 @@ export default class Connection {
 
     //fire class 
     //fire command for query in database for current selected shop
-  fireshop =async (query) =>{
+  Query =async (query) =>{
       let value ={flag:false,
                   data:[]
                 };
             
    // let query = "SELECT shop_info_table.*,customer_info_table.* FROM `shop_info_table` INNER JOIN customer_info_table ON shop_info_table.user_id = customer_info_table.user_id WHERE shop_info_table.shop_info_id = "+shopID;
-    console.log("Shop Query :",query);
+    console.log("Retrive query :",query);
     await  fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
       method: 'POST',
       headers: {
@@ -32,11 +32,15 @@ export default class Connection {
       }) 
       }).then((response) => response.json())
           .then((responseJson) => {
-             
+            
             value.flag=true;
             value.data = responseJson;
-          console.log("On shop ", typeof value);
-          
+         
+          if(value.data.toString() === "NO"){
+            value.flag=false;
+            value.data ="There are some error retry.."; 
+          }
+          console.log("On shop  value :", value);
         }).catch((error) => {
               
             //  alert("updated slow network");

@@ -92,6 +92,8 @@ class VerifyEmail extends React.Component {
                         style={styles.textInput} 
                         placeholder="Enter your email"
                         onChangeText = {(text)=>{this.setState({email:text})}}
+                        autoFocus={true}
+                        underlineColorAndroid='#0084ff' 
                     />
                     <Button 
                         style = {styles.button} 

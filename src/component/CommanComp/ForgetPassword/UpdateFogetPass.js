@@ -50,7 +50,7 @@ class UpdateForgetPassScreen extends React.Component {
         });
       
               let  sql = "UPDATE `security_table` SET `password`='"+this.state.password1+"' WHERE email = '"+this.state.email+"'";
-                //"INSERT INTO `shop_info_table`(`user_id`) VALUES (())";
+                //"INSERT INTO `customer_info_table`(`user_id`) VALUES (())";
                 console.log(sql);
                 fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                     method: 'POST',

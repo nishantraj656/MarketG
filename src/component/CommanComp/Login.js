@@ -12,12 +12,14 @@ import {    StyleSheet,
             AsyncStorage
         } from 'react-native';
 import {createDrawerNavigator,createSwitchNavigator} from 'react-navigation';
-
+import {registerForPushNotificationsAsync} from '../../global/token'
 
 import "../../pic/logo.png";
 import Register from './Register/Register';
 import MainMenu from '../Menu/MainMenu';
 import IdentifyUser from './ForgetPassword/IdentifyUser';
+
+
 class LoginScreen extends React.Component {
     constructor(props){
         super(props);
@@ -26,67 +28,63 @@ class LoginScreen extends React.Component {
            email_or_phone:"",
            password:"",
            login_status:false,
-           wait:true,
-          
 
         }
        
         
     }
     componentDidMount (){
+     
         this._retrieveData();
+       
     }
     _retrieveData = async () => {
         try {
-       //  await AsyncStorage.setItem('key_login_status', 'false');
-
-          const value = await AsyncStorage.getItem('key_login_status');
-          if (value !== null) {
+         // await AsyncStorage.setItem('key_login_status_market_g', 'false');
+        
+         let token = await AsyncStorage.getItem('token');
+          const value = await AsyncStorage.getItem('key_login_status_market_g');
+          if (value !== null ) {
               if(value == 'true'){
                 this.setState({
-                    login_status: true,
-                    wait:false
+                    login_status: true
                 });
-              }else{
-                  this.setState({wait:false});
               }
-
             
           }
-          else{
-            this.setState({wait:false});
-          }
+       
          } catch (error) {
+             console.log('error in retrive data',error);
             this.setState({
-                login_status: false,
-                wait:false
+                login_status: false
             });
          }
       }
-    _storeData = async (user_email,user_phone,user_name,user_state,user_city,user_landmark,userID) => {
+
+    _storeData = async (user_email,user_phone,user_name,user_state,user_city,user_landmark,user_address,costID) => {
         try {
-          await AsyncStorage.setItem('key_login_status', 'true');
+            
+          await registerForPushNotificationsAsync(this.state.email_or_phone,this.state.password);
+          await AsyncStorage.setItem('key_login_status_market_g', 'true'); 
           await AsyncStorage.setItem('user_email',user_email );
           await AsyncStorage.setItem('user_phone',user_phone );
           await AsyncStorage.setItem('user_name',user_name );
           await AsyncStorage.setItem('user_state',user_state);
           await AsyncStorage.setItem('user_city',user_city );
           await AsyncStorage.setItem('user_landmark',user_landmark );
-          await AsyncStorage.setItem('userID',userID);
+          await AsyncStorage.setItem('user_address',user_address == null ? "  ":user_address);
+          await AsyncStorage.setItem('costID',costID)
+        
+          this.props.navigation.navigate('MainMenu');
 
             console.log("saved");
         }catch (error) {
             console.log("Eroor in saving");
         }
     }
+
     submitLogin = () =>{
-
-
-
-
-
-
-        
+  
         if(this.state.email_or_phone.trim().length == 0 || this.state.password.length == 0 ){
             alert("Enter you email or password first")
             return;
@@ -112,7 +110,7 @@ class LoginScreen extends React.Component {
                     if(responseJson.length == 1){
                         let user_id = responseJson[0].user_id;
                         //alert("id "+user_id);
-                        let sql = "SELECT  email,phone_no,name ,state,city,landmark FROM security_table join shop_info_table on security_table.user_id = shop_info_table.user_id WHERE security_table.user_id = '"+user_id+"'";
+                        let sql = "SELECT customer_info_id,email,phone_no,cname ,state,city,landmark,address FROM security_table join customer_info_table on security_table.user_id = customer_info_table.user_id WHERE security_table.user_id = '"+user_id+"'";
                         console.log(sql);
                         fetch('http://biharilegends.com/biharilegends.com/market_go/run_query.php', {
                             method: 'POST',
@@ -127,11 +125,14 @@ class LoginScreen extends React.Component {
                                 .then((responseJson) => {
                                     console.log(responseJson);
                                     if(responseJson.length != 0){
-                        
+                                       
+                                       registerForPushNotificationsAsync(this.state.email_or_phone,this.state.password);
+                                       
                                         let data = responseJson[0];
-                                        this._storeData(data.email,data.phone_no,data.name,data.state,data.city,data.landmark,user_id);
-                                        this.props.navigation.navigate('MainMenu');
-                                        
+                                        console.log("Value ",responseJson[0]);
+                                        this._storeData(data.email,data.phone_no,data.cname,data.state,data.city,data.landmark,data.address,data.customer_info_id);
+                                       // console.log(data.email,data.phone_no,data.cname,data.state,data.city,data.landmark,data.address);
+                                                                            
                                     }
                                     else{
                                         alert("Login Again");
@@ -175,6 +176,9 @@ class LoginScreen extends React.Component {
                 });
 
     }
+    saveNotificationToken = () => {
+        alert("noti");
+    }
     createAccount = () =>{
         console.log("wait and fill the form");
         this.props.navigation.navigate('SingIn');
@@ -187,7 +191,7 @@ class LoginScreen extends React.Component {
         if(this.state.login_status){
            return( this.props.navigation.navigate('MainMenu'));
         }
-        else if(!this.state.wait){
+        else{
             return (
                 <ScrollView>
                     <KeyboardAvoidingView behavior="padding" enabled>
@@ -197,17 +201,18 @@ class LoginScreen extends React.Component {
                                 <Text style={styles.H1}>Welcome to MarketG</Text>
                                 <Text style={styles.H4}>Thanks for installing - let's start shoping!</Text>
                                 <TextInput 
-                                    underlineColorAndroid='#b3b3b3' 
+                                    underlineColorAndroid='#0084ff' 
                                     style={styles.textInput} 
                                     placeholder="Email or phone"
                                     onChangeText={(text) => this.setState({email_or_phone:text})} 
                                 />
                                 <TextInput 
-                                    underlineColorAndroid='#b3b3b3' 
+                                    underlineColorAndroid='#0084ff' 
                                     style={styles.textInput} 
                                     placeholder="Password" 
                                     secureTextEntry={true}
                                     onChangeText={(text) => this.setState({password:text})} 
+                                
                                 />
                                 <Button 
                                     style = {styles.button} 
@@ -215,6 +220,7 @@ class LoginScreen extends React.Component {
                                     onPress={this.submitLogin}
                                     value = "CONTINUE"
                                     disabled = {this.state.submitButtonDisable}
+                                    
                                 ></Button>
                                 <View style={styles.Process}>
                                     <ActivityIndicator 
@@ -223,21 +229,20 @@ class LoginScreen extends React.Component {
                                         color="#00ff00" />
                                 </View>
                                 
-            
+                                <TouchableOpacity onPress={this.forgetPasswrod}>
+                                    <Text style={styles.H41}>FORGOT PASSWORD?</Text>
+                                </TouchableOpacity>
+
                                 <TouchableOpacity onPress={this.createAccount}>
                                     <Text style={styles.H5}>Not on MarketG?</Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={this.forgetPasswrod}>
-                                    <Text style={styles.H4}>Forget Password?</Text>
-                                </TouchableOpacity>
+                                
                             </View>
                         </View>
                     </KeyboardAvoidingView>
                 </ScrollView>
             );
 
-        }else{
-            return(<View><ActivityIndicator  size="large" color="#00ff00" /></View>)
         }
    
   }
@@ -275,7 +280,7 @@ const styles = StyleSheet.create({
         //borderRadius: 10 ,
     },
     H1:{
-        fontSize: 28,
+        fontSize: 30,
         fontWeight: '400',
         color: "#000",
         textAlign: 'center', 
@@ -289,38 +294,50 @@ const styles = StyleSheet.create({
     H4:{
         fontSize: 13,
         fontWeight: '400',
-        color: "#b3b3b3",
+        color: "#999999",
         textAlign: 'center', 
         marginBottom: 15
     },
+    H41:{
+        fontSize: 15,
+        fontWeight: '500',
+        color: "#359dff",
+        textAlign: 'center', 
+        marginBottom: 15
+    },
+    
     H5:{
-        //marginTop: '20%',
+        marginTop: '15%',
         fontSize: 30,
         fontWeight: '400',
-        color: "#b3b3b3",
+        color: "#999999",
         textAlign: 'center', 
-        marginBottom: 15
+        //marginBottom: 15
     },
     button:{
-        marginTop: 50,
+        //marginTop: 50,
         
     },
     Process:{
-        marginTop: 20,
+        //marginTop: 20,
     }
 });
 
-class SignInScreen extends React.Component{
+
+class SignInScreen extends React.Component
+{
     render(){
         return(<Register/>)
     }
 }
-class ForgetPass extends React.Component{
+class ForgetPass extends React.Component
+{
     render(){
         return(<IdentifyUser/>)
     }
 }
-class MainScreen extends React.Component{
+class MainScreen extends React.Component
+{
     render(){
         return(<MainMenu/>)
     }
@@ -335,6 +352,7 @@ const RootStack = createSwitchNavigator(
     },
     {
       initialRouteName: 'Login',
+      backBehavior:'initialRoute',
      
     }
   );

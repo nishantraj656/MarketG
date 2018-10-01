@@ -5,6 +5,7 @@ import {createDrawerNavigator,createMaterialTopTabNavigator, createStackNavigato
 
 import { ScrollView } from 'react-native-gesture-handler';
 import LogoTitle from '../../LogoTitle';
+import Connection from '../../global/Connection';
 
 const sl =" ";
 const ps = "";
@@ -90,6 +91,7 @@ class ShopsList extends React.Component{
           await AsyncStorage.setItem('ShopID', select);
           console.log("in storage data ",select);
           ps.refresh();
+          sd.refresh();
 
         } catch (error) {
           // Error saving data
@@ -133,7 +135,7 @@ class ShopsList extends React.Component{
                     </View>
                     
                 </TouchableOpacity>
-                <Button title="Details" onPress={()=>{}}/>
+                <Button title="Details" onPress={()=>{this._storeData(item.shop_info_id);     this.props.navigation.navigate('ShopsDetails');  }}/>
             </View>           
                         
         );
@@ -473,7 +475,7 @@ class ShopProductDetails extends React.Component{
     constructor(props){
         super(props);
         this.state={
-            data:null
+            data:[],
         }
        spd=this;
     }
@@ -623,18 +625,50 @@ class ShopProductDetails extends React.Component{
 class ShopsDetails extends React.Component{
     constructor(props){
         super(props);
+        this.state={
+            data:[],
+            shopID:0
+        }
         sd=this;
+        this.conn = null;
     }
 
+    
+    refresh(){
+        this._inslization();
+    }
+
+        //
+    componentWillMount(){
+        this.conn= new Connection();
+        this._inslization();
+    }
+
+    _inslization =async()=>{
+      
+        
+        await this._retrieveShopID();
+        let value =await this.conn.Query("SELECT * FROM `shop_info_table` where shop_info_id ="+this.state.shopID); // get subcategory list 
+        if(value.flag){
+            this.setState({data:value.data});
+            console.log("In shop details value >>>>>>><<<<<<:",this.state.data);
+            
+        }else{
+          //  this.setState({subCategoryMsg:"List is empty...."});
+        }
+        
+       
+      }
     
     _retrieveShopID = async () => {
         try {
           const value = await AsyncStorage.getItem('ShopID');
           if (value !== null) {
             // We have data!!
-            console.log("ShopID Select  "+value);
-           
-            this.fire(value);
+            console.log("ShopID Select in shop details class : "+value);
+            this.setState({shopID:value});
+
+           // this.fire(value);
            
           }
           else{
@@ -647,8 +681,8 @@ class ShopsDetails extends React.Component{
       }
 
       
-                //fire command for shop Details
-                fireP = (id) =>{
+    /**            //fire command for shop Details
+    fireP = (id) =>{
         
                     console.log("Id Return "+id);
                     //let sql = "SELECT * FROM `sub_category_table` where category_id="+id;
@@ -670,18 +704,22 @@ class ShopsDetails extends React.Component{
                            console.log('Home update');
                       //  alert("data update");
                          this.setState({datap:responseJson});
-            
+
                         }).catch((error) => {
                             alert("error slow network");
                             console.log(error);
-                            
-            
                         });           
                  }
-    
+    */
     
     render(){
-        return(<View></View>);
+
+        if(this.state.data ==null)
+         return(<View>{console.log("Hello htis iss jnsfk jfijdiosj fpjs")}</View>);
+        else
+            return(<View>
+                        <View><Text>{console.log("maksjdfp johfoieuwyotrnknfhdsohyaifhnfhoauifr79847975 jfhoshhn",this.state.data.name)}</Text></View>
+            </View> )
     }
 }
 
